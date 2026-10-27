@@ -1,0 +1,84 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+enum EnrolmentStatus {
+  ADMITTED
+  PENDING_REVIEW
+  ACTIVE
+  ON_BREAK
+  TRANSFERRED_OUT
+  WITHDRAWN
+  CANCELLED
+  COMPLETED
+}
+
+enum SeatType {
+  REGULAR
+  SUPERNUMERARY
+  LATERAL_ENTRY
+}
+
+model Institution {
+  id         String      @id @default(uuid())
+  aicteCode  String      @unique
+  name       String
+  state      String
+  programmes Programme[]
+  createdAt  DateTime    @default(now())
+}
+
+model Programme {
+  id             String      @id @default(uuid())
+  institutionId  String
+  institution    Institution @relation(fields: [institutionId], references: [id])
+  name           String
+  academicYear   Int
+  shift          Int         @default(1)
+  approvedIntake Int
+  lateralIntake  Int         @default(0)
+  enrolments     Enrolment[]
+
+  @@unique([institutionId, name, academicYear, shift])
+}
+
+model Student {
+  id          String      @id @default(uuid())
+  apaarId     String?     @unique
+  fullName    String
+  dateOfBirth DateTime    @db.Date
+  enrolments  Enrolment[]
+  createdAt   DateTime    @default(now())
+}
+
+model Enrolment {
+  id                  String          @id @default(uuid())
+  studentId           String
+  student             Student         @relation(fields: [studentId], references: [id])
+  programmeId         String
+  programme           Programme       @relation(fields: [programmeId], references: [id])
+  status              EnrolmentStatus
+  seatType            SeatType        @default(REGULAR)
+  isNri               Boolean         @default(false)
+  isOci               Boolean         @default(false)
+  isForeignNational   Boolean         @default(false)
+  startDate           DateTime        @db.Date
+  endDate             DateTime?       @db.Date
+  previousEnrolmentId String?         @unique
+  previousEnrolment   Enrolment?      @relation("EnrolmentTransfer", fields: [previousEnrolmentId], references: [id])
+  nextEnrolment       Enrolment?      @relation("EnrolmentTransfer")
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+
+  @@index([studentId])
+  @@index([programmeId, status])
+}
