@@ -11,6 +11,15 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+enum UserRole {
+  AICTE_ADMIN
+  INSTITUTION_ADMIN
+  INSTITUTION_OPERATOR
+  STUDENT
+  VERIFIER
+}
+
 enum EnrolmentStatus {
   ADMITTED
   PENDING_REVIEW
@@ -28,12 +37,45 @@ enum SeatType {
   LATERAL_ENTRY
 }
 
+model User {
+  id           String    @id @default(uuid())
+  email        String    @unique
+  passwordHash String
+  fullName     String
+  role         UserRole
+  institutionId String?
+  institution   Institution? @relation(fields: [institutionId], references: [id])
+  isActive     Boolean   @default(true)
+  lastLoginAt  DateTime?
+  sessions     Session[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([institutionId])
+  @@index([role])
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  userAgent String?
+  ipAddress String?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
 model Institution {
   id         String      @id @default(uuid())
   aicteCode  String      @unique
   name       String
   state      String
   programmes Programme[]
+  users      User[]
+  cases      Case[]
   createdAt  DateTime    @default(now())
 }
 
@@ -78,7 +120,45 @@ model Enrolment {
   nextEnrolment       Enrolment?      @relation("EnrolmentTransfer")
   createdAt           DateTime        @default(now())
   updatedAt           DateTime        @updatedAt
+  cases               Case[]
 
   @@index([studentId])
   @@index([programmeId, status])
 }
+
+enum CaseType {
+  OVERLAP
+  INTAKE_EXCEEDED
+  MISSING_APAAR
+  OTHER
+}
+
+enum CaseStatus {
+  OPEN
+  IN_REVIEW
+  RESOLVED
+  ESCALATED
+  REJECTED
+}
+
+model Case {
+  id              String     @id @default(uuid())
+  type            CaseType
+  status          CaseStatus @default(OPEN)
+  studentId       String?
+  enrolmentId     String?
+  enrolment       Enrolment? @relation(fields: [enrolmentId], references: [id])
+  institutionId   String?
+  institution     Institution? @relation(fields: [institutionId], references: [id])
+  description     String
+  resolutionNotes String?
+  resolvedById    String?
+  resolvedAt      DateTime?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  @@index([status])
+  @@index([type])
+  @@index([institutionId])
+}
+

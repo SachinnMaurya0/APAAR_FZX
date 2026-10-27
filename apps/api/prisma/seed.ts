@@ -1,6 +1,7 @@
 import "dotenv/config";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../src/generated/prisma/client";
+import * as argon2 from "argon2";
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
 const prisma = new PrismaClient({ adapter });
@@ -29,6 +30,8 @@ async function main() {
   }
 
   // Clear old data first, children before parents, so the script can be re-run
+  await prisma.session.deleteMany();
+  await prisma.user.deleteMany();
   await prisma.enrolment.deleteMany();
   await prisma.student.deleteMany();
   await prisma.programme.deleteMany();
@@ -39,6 +42,36 @@ async function main() {
   });
   const instB = await prisma.institution.create({
     data: { aicteCode: "TEST-INST-002", name: "Demo College of Engineering", state: "Maharashtra" },
+  });
+
+  // Test users
+  const passwordHash = await argon2.hash("Password123!");
+  await prisma.user.create({
+    data: {
+      email: "aicte.admin@apaar.gov.in",
+      passwordHash,
+      fullName: "AICTE Admin",
+      role: "AICTE_ADMIN",
+      institutionId: null,
+    },
+  });
+  await prisma.user.create({
+    data: {
+      email: "admin@insta.edu.in",
+      passwordHash,
+      fullName: "InstA Admin",
+      role: "INSTITUTION_ADMIN",
+      institutionId: instA.id,
+    },
+  });
+  await prisma.user.create({
+    data: {
+      email: "operator@instb.edu.in",
+      passwordHash,
+      fullName: "InstB Operator",
+      role: "INSTITUTION_OPERATOR",
+      institutionId: instB.id,
+    },
   });
 
   const aCse2025 = await programme(instA.id, "B.Tech CSE", 2025, 60);

@@ -1,13 +1,18 @@
 import { Module } from '@nestjs/common';
+import { PrismaModule } from './prisma/prisma.module';
+import { InstitutionsModule } from './institutions/institutions.module';
+import { UsersModule } from './users/users.module';
+import { AuthModule } from './auth/auth.module';
+import { ProgrammesModule } from './programmes/programmes.module';
+import { StudentsModule } from './students/students.module';
+import { EnrolmentsModule } from './enrolments/enrolments.module';
+import { CasesModule } from './cases/cases.module';
+import { DashboardsModule } from './dashboards/dashboards.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
-
 @Module({
-  imports: [
-    // Distributed tracing, auto-correlated logs, request/job metrics, error
-    // telemetry, alarms, and more — out of the box. Sign up at https://observe.nestjs.com
-  ],
+  imports: [PrismaModule, InstitutionsModule, UsersModule, AuthModule, ProgrammesModule, StudentsModule, EnrolmentsModule, CasesModule, DashboardsModule],
   controllers: [AppController],
   providers: [AppService],
 })
