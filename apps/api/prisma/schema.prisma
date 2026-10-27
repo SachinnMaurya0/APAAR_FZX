@@ -40,6 +40,8 @@ enum SeatType {
 model User {
   id           String    @id @default(uuid())
   email        String    @unique
+  studentId    String?   @unique
+  student      Student?  @relation(fields: [studentId], references: [id])
   passwordHash String
   fullName     String
   role         UserRole
@@ -100,6 +102,7 @@ model Student {
   dateOfBirth DateTime    @db.Date
   enrolments  Enrolment[]
   createdAt   DateTime    @default(now())
+  user        User?
 }
 
 model Enrolment {

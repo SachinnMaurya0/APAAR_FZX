@@ -30,6 +30,7 @@ async function main() {
   }
 
   // Clear old data first, children before parents, so the script can be re-run
+  await prisma.case.deleteMany();
   await prisma.session.deleteMany();
   await prisma.user.deleteMany();
   await prisma.enrolment.deleteMany();
@@ -83,6 +84,27 @@ async function main() {
   const riya = await student("100000000001", "Riya Test", "2006-05-14");
   await enrol(riya.id, aCse2025.id, "WITHDRAWN", "2025-08-01", { endDate: new Date("2026-01-12") });
   await enrol(riya.id, bCse2026.id, "ACTIVE", "2026-01-12");
+  
+  // Demo portal users
+  await prisma.user.create({
+    data: {
+      email: "riya.student@example.com",
+      passwordHash,
+      fullName: "Riya Test",
+      role: "STUDENT",
+      institutionId: null,
+      studentId: riya.id,
+    },
+  });
+  await prisma.user.create({
+    data: {
+      email: "verifier@example.com",
+      passwordHash,
+      fullName: "Demo Verifier",
+      role: "VERIFIER",
+      institutionId: null,
+    },
+  });
 
   // Situation 2: over intake. B's ECE programme has 2 seats but 3 active students.
   for (const [i, name] of ["Aman", "Neha", "Karan"].entries()) {

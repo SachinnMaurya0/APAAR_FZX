@@ -53,12 +53,13 @@ export class ProgrammesService {
   }
 
   async create(createDto: CreateProgrammeDto, user: any) {
-    let institutionId = createDto.institutionId;
+    let institutionId: string;
 
     if (user.role === UserRole.AICTE_ADMIN) {
-      if (!institutionId) {
+      if (!createDto.institutionId) {
         throw new ForbiddenException('institutionId is required for AICTE_ADMIN');
       }
+      institutionId = createDto.institutionId;
     } else {
       if (!user.institutionId) {
         throw new ForbiddenException('User is not associated with an institution');
@@ -106,7 +107,13 @@ export class ProgrammesService {
 
     return this.prisma.programme.update({
       where: { id },
-      data: updateDto,
+      data: {
+        name: updateDto.name,
+        academicYear: updateDto.academicYear,
+        shift: updateDto.shift,
+        approvedIntake: updateDto.approvedIntake,
+        lateralIntake: updateDto.lateralIntake,
+      },
       include: { institution: true },
     });
   }

@@ -10,9 +10,10 @@ import { CasesModule } from './cases/cases.module';
 import { DashboardsModule } from './dashboards/dashboards.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { MeModule } from './me/me.module';
 
 @Module({
-  imports: [PrismaModule, InstitutionsModule, UsersModule, AuthModule, ProgrammesModule, StudentsModule, EnrolmentsModule, CasesModule, DashboardsModule],
+  imports: [PrismaModule, InstitutionsModule, UsersModule, AuthModule, ProgrammesModule, StudentsModule, EnrolmentsModule, CasesModule, DashboardsModule,MeModule],
   controllers: [AppController],
   providers: [AppService],
 })
