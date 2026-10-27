@@ -1,1 +1,19 @@
 @import "tailwindcss";
+
+@theme {
+  --font-display: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+}
+
+@keyframes clash-draw {
+  from { clip-path: inset(0 100% 0 0); }
+  to { clip-path: inset(0 0 0 0); }
+}
+
+.clash-draw {
+  animation: clash-draw 700ms ease-out 500ms both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .clash-draw { animation: none; }
+}

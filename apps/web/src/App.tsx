@@ -3,6 +3,7 @@ import { useAuth } from './auth';
 import { roleHome } from './types';
 import RequireRole from './components/RequireRole';
 import Login from './pages/Login';
+import Landing from './pages/Landing';
 import Overview from './pages/Overview';
 import Portal from './pages/Portal';
 
@@ -15,6 +16,7 @@ function Home() {
 export default function App() {
   return (
     <Routes>
+      <Route path="/" element={<Landing />} />
       <Route path="/login" element={<Login />} />
       <Route element={<RequireRole roles={['AICTE_ADMIN']} />}>
         <Route path="/aicte" element={<Overview scope="aicte" />} />
