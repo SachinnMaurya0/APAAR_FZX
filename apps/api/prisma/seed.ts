@@ -233,8 +233,29 @@ async function main() {
 
   // ---- Bulk demo students: 194 generated + 6 above = 200 in total ----
   const GENERATED = 194;
-  for (let n = 0; n < GENERATED; n++) {
-    const apaarId = String(200000000001 + n);
+  let seq = 0;
+  const nextApaar = () => String(200000000001 + seq++);
+
+  // Situation 5: more over-intake programmes. B ECE above is the 1st, these 6 make 7 in total.
+  // Each gets a small approved intake and 1 or 2 more active students than seats.
+  let overCount = 0;
+  for (const p of shuffle(pool).slice(0, 6)) {
+    const intake = pick([3, 4, 5, 6]);
+    await prisma.programme.update({ where: { id: p.id }, data: { approvedIntake: intake } });
+    const students = intake + int(1, 2);
+    for (let k = 0; k < students; k++) {
+      const s = await student(nextApaar(), fullName(), dobString());
+      await enrol(s.id, p.id, "ACTIVE", startFor(p.year));
+      overCount++;
+    }
+    // Mark as full so the random assignment below never adds to it
+    p.intake = intake;
+    p.used = students;
+    p.lateral = p.lateralIntake;
+  }
+
+  for (let n = 0; n < GENERATED - overCount; n++) {
+    const apaarId = nextApaar();
 
     // 10 students who moved between institutes (old enrolment ended, new one starts the same day)
     if (n < 10) {

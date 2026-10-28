@@ -8,6 +8,8 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   // CSV imports send up to 1000 rows as JSON, which is larger than the 100kb default
   app.useBodyParser('json', { limit: '5mb' });
+  // Behind Render's proxy: lets Express see the original https request
+  app.set('trust proxy', 1);
   app.use(cookieParser());
   await app.listen(process.env.PORT ?? 3000);
 }

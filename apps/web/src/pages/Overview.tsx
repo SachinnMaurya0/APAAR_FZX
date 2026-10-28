@@ -26,9 +26,16 @@ function StatusBadge({ row }: { row: ProgrammeOverview }) {
   return <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">Within intake</span>;
 }
 
+// Today's date in the user's own timezone, as YYYY-MM-DD.
+// (toISOString() would give yesterday's date in India before 5:30 am.)
+const todayLocal = () => {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+};
+
 export default function Overview({ scope }: { scope: 'aicte' | 'institution' }) {
   const { user } = useAuth();
-  const [asOf, setAsOf] = useState('');
+  const [asOf, setAsOf] = useState(todayLocal);
 
   const { data, isLoading, isError } = useQuery<ProgrammeOverview[]>({
     queryKey: ['overview', asOf],
@@ -61,7 +68,7 @@ export default function Overview({ scope }: { scope: 'aicte' | 'institution' }) 
           <input
             type="date"
             value={asOf}
-            onChange={(e) => setAsOf(e.target.value)}
+            onChange={(e) => setAsOf(e.target.value || todayLocal())}
             className="ml-2 rounded-lg border border-slate-300 px-2 py-1 text-sm"
           />
         </label>

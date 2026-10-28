@@ -39,8 +39,11 @@ export default function SiteHeader() {
   return (
     <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/90 backdrop-blur">
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
-        <Link to="/" className={`${focus} text-base font-semibold tracking-tight text-[#0f2a47]`}>
-          APAAR FZX
+        <Link to="/" className={`${focus} flex flex-col leading-none text-[#0f2a47]`} aria-label="ANVAY, Academic Identity Network, home">
+          <span className="text-lg font-bold tracking-wide">ANVAY</span>
+          <span className="mt-0.5 hidden text-[10px] font-medium uppercase tracking-widest text-slate-500 sm:block">
+            Academic Identity Network
+          </span>
         </Link>
         <nav aria-label="Main" className="hidden items-center gap-3 md:flex">{nav}</nav>
         <div className="hidden md:block">{cta}</div>

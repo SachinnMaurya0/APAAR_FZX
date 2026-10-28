@@ -34,6 +34,9 @@ export interface RowResult {
   error?: string;
   enrolmentId?: string;
   newStudent?: boolean;
+  /** True when a MISSING_APAAR case was raised for this row. */
+  flagged?: boolean;
+  note?: string;
 }
 
 const text = (v: unknown) => (typeof v === 'string' ? v.trim() : v == null ? '' : String(v).trim());
@@ -84,9 +87,7 @@ function normalise(raw: any): Normalised {
   const isForeignNational = parseBool(raw.isForeignNational, 'Foreign national');
   const apaarRaw = text(raw.apaarId);
   if (apaarRaw && !/^\d{12}$/.test(apaarRaw)) throw new RowError('APAAR ID must be 12 digits');
-  if (!apaarRaw && !isForeignNational) {
-    throw new RowError('APAAR ID is required unless the student is a foreign national');
-  }
+  // A missing ID is accepted. Whether it raises a case is decided in write() (see needsCase).
 
   const status = text(raw.status).toUpperCase() || 'ACTIVE';
   if (!STATUSES.includes(status)) throw new RowError(`Status must be one of ${STATUSES.join(', ')}`);
@@ -175,7 +176,7 @@ export class RecordsService {
   private async processRow(raw: any, institutionId: string, dryRun: boolean, row: number): Promise<RowResult> {
     try {
       const n = normalise(raw);
-      let written: { enrolmentId: string; newStudent: boolean } | undefined;
+      let written: { enrolmentId: string; newStudent: boolean; flagged: boolean } | undefined;
       try {
         await this.prisma.$transaction(async (tx) => {
           written = await this.write(tx, institutionId, n);
@@ -184,7 +185,16 @@ export class RecordsService {
       } catch (e) {
         if (!(e instanceof Rollback)) throw e;
       }
-      return { row, ok: true, enrolmentId: dryRun ? undefined : written?.enrolmentId, newStudent: written?.newStudent };
+      return {
+        row,
+        ok: true,
+        enrolmentId: dryRun ? undefined : written?.enrolmentId,
+        newStudent: written?.newStudent,
+        flagged: written?.flagged,
+        note: written?.flagged
+          ? 'Accepted without an APAAR ID. A case was raised and the enrolment is held for review.'
+          : undefined,
+      };
     } catch (e: any) {
       if (e instanceof RowError) return { row, ok: false, error: e.message };
       if (isOverlapError(e)) {
@@ -251,12 +261,19 @@ export class RecordsService {
     });
     if (duplicate) throw new RowError('This enrolment is already recorded');
 
-    // 4. The database refuses overlapping confirmed enrolments (see isOverlapError)
+    // 4. A domestic student (not NRI, not a foreign national) with no APAAR ID is accepted but flagged.
+    //    Seat-holding statuses are held as PENDING_REVIEW so they do not count as confirmed seats.
+    //    Ended statuses (withdrawn, completed, ...) keep their status because they hold no seat.
+    const needsCase = !n.apaarId && !n.isNri && !n.isForeignNational;
+    const holdsSeat = ['ACTIVE', 'ON_BREAK', 'ADMITTED'].includes(n.status);
+    const status = needsCase && holdsSeat ? 'PENDING_REVIEW' : n.status;
+
+    // 5. The database refuses overlapping confirmed enrolments (see isOverlapError)
     const enrolment = await tx.enrolment.create({
       data: {
         studentId: student.id,
         programmeId: programme.id,
-        status: n.status as any,
+        status: status as any,
         seatType: n.seatType as any,
         isNri: n.isNri,
         isOci: n.isOci,
@@ -265,6 +282,21 @@ export class RecordsService {
         endDate: n.endDate,
       },
     });
-    return { enrolmentId: enrolment.id, newStudent };
+
+    if (needsCase) {
+      await tx.case.create({
+        data: {
+          type: 'MISSING_APAAR',
+          studentId: student.id,
+          enrolmentId: enrolment.id,
+          institutionId,
+          description:
+            `${n.fullName} was submitted without an APAAR ID and is not marked as NRI or a foreign national.` +
+            (holdsSeat ? ' The enrolment is held as PENDING_REVIEW until an ID is provided.' : ''),
+        },
+      });
+    }
+
+    return { enrolmentId: enrolment.id, newStudent, flagged: needsCase };
   }
 }

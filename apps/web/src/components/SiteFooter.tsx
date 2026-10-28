@@ -33,7 +33,8 @@ export default function SiteFooter() {
     <footer ref={ref} className="bg-[#0f2a47] text-slate-300">
       <div className="mx-auto grid max-w-6xl gap-8 px-4 py-12 sm:grid-cols-2 md:grid-cols-4">
         <div className="md:col-span-2" style={rise(0)}>
-          <p className="text-base font-semibold text-white">APAAR FZX</p>
+          <p className="text-xl font-bold tracking-wide text-white">ANVAY</p>
+          <p className="mt-0.5 text-[11px] font-medium uppercase tracking-widest text-slate-400">Academic Identity Network</p>
           <p className="mt-2 max-w-md text-sm leading-relaxed">
             A prototype for Smart India Hackathon 2026 (PS 26263). It runs on demo data only, so please do not enter real student records.
           </p>
@@ -60,7 +61,7 @@ export default function SiteFooter() {
         </nav>
       </div>
       <div className="border-t border-white/10 px-4 py-4 text-center text-xs" style={rise(3)}>
-        © 2026 APAAR FZX team. Prototype, not an official government service.
+        © 2026 ANVAY team. Prototype, not an official government service.
       </div>
     </footer>
   );
