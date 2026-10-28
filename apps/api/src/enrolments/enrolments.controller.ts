@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { EnrolmentsService } from './enrolments.service';
 import { CreateEnrolmentDto } from './dto/create-enrolment.dto';
 import { UpdateEnrolmentDto } from './dto/update-enrolment.dto';
@@ -35,5 +35,11 @@ export class EnrolmentsController {
   @Roles(UserRole.AICTE_ADMIN, UserRole.INSTITUTION_ADMIN, UserRole.INSTITUTION_OPERATOR)
   update(@Param('id') id: string, @Body() updateEnrolmentDto: UpdateEnrolmentDto, @CurrentUser() user: any) {
     return this.enrolmentsService.update(id, updateEnrolmentDto, user);
+  }
+
+  @Delete(':id')
+  @Roles(UserRole.AICTE_ADMIN, UserRole.INSTITUTION_ADMIN)
+  remove(@Param('id') id: string, @CurrentUser() user: any) {
+    return this.enrolmentsService.remove(id, user);
   }
 }

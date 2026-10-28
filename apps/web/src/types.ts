@@ -76,3 +76,55 @@ export interface StudentRecord {
     };
   }[];
 }
+
+export type CaseStatus = 'OPEN' | 'IN_REVIEW' | 'RESOLVED' | 'ESCALATED' | 'REJECTED';
+
+export interface CaseItem {
+  id: string;
+  type: 'OVERLAP' | 'INTAKE_EXCEEDED' | 'MISSING_APAAR' | 'OTHER';
+  status: CaseStatus;
+  description: string;
+  resolutionNotes: string | null;
+  createdAt: string;
+  resolvedAt: string | null;
+  institution: Institution | null;
+  enrolment: {
+    student: { fullName: string; apaarId: string | null };
+    programme: { name: string; academicYear: number; institution: Institution };
+  } | null;
+}
+
+export interface Programme {
+  id: string;
+  name: string;
+  academicYear: number;
+  shift: number;
+  approvedIntake: number;
+  lateralIntake: number;
+  institution: Institution;
+}
+
+export interface EnrolmentRow {
+  id: string;
+  status: string;
+  seatType: string;
+  isNri: boolean;
+  isOci: boolean;
+  isForeignNational: boolean;
+  startDate: string;
+  endDate: string | null;
+  student: { id: string; apaarId: string | null; fullName: string; dateOfBirth: string };
+  programme: Programme;
+}
+
+export const enrolmentStatuses = [
+  'ADMITTED',
+  'ACTIVE',
+  'ON_BREAK',
+  'TRANSFERRED_OUT',
+  'WITHDRAWN',
+  'CANCELLED',
+  'COMPLETED',
+] as const;
+
+export const seatTypes = ['REGULAR', 'SUPERNUMERARY', 'LATERAL_ENTRY'] as const;

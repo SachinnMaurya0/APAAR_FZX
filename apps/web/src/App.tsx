@@ -3,7 +3,9 @@ import { useAuth } from './auth';
 import { roleHome } from './types';
 import RequireRole from './components/RequireRole';
 import Login from './pages/Login';
+import Cases from './pages/Cases';
 import Landing from './pages/Landing';
+import Records from './pages/Records';
 import Overview from './pages/Overview';
 import Portal from './pages/Portal';
 
@@ -23,6 +25,12 @@ export default function App() {
       </Route>
       <Route element={<RequireRole roles={['INSTITUTION_ADMIN', 'INSTITUTION_OPERATOR']} />}>
         <Route path="/institution" element={<Overview scope="institution" />} />
+      </Route>
+      <Route element={<RequireRole roles={['AICTE_ADMIN', 'INSTITUTION_ADMIN', 'INSTITUTION_OPERATOR']} />}>
+        <Route path="/cases" element={<Cases />} />
+      </Route>
+      <Route element={<RequireRole roles={['INSTITUTION_ADMIN', 'INSTITUTION_OPERATOR']} />}>
+        <Route path="/records" element={<Records />} />
       </Route>
       <Route element={<RequireRole roles={['STUDENT', 'VERIFIER']} />}>
         <Route path="/portal" element={<Portal />} />

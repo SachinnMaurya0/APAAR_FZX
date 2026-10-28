@@ -185,4 +185,45 @@ export class EnrolmentsService {
       throw e;
     }
   }
+
+  /**
+   * Removes one enrolment. If the student has no other enrolments and no login account,
+   * the student record is removed too. Cases keep their text but lose the link.
+   */
+  async remove(id: string, user: any) {
+    if (user.role !== UserRole.AICTE_ADMIN && user.role !== UserRole.INSTITUTION_ADMIN) {
+      throw new ForbiddenException('Insufficient permissions');
+    }
+
+    const enrolment = await this.prisma.enrolment.findUnique({
+      where: { id },
+      include: { programme: true },
+    });
+    if (!enrolment) {
+      throw new NotFoundException('Enrolment not found');
+    }
+    if (user.role !== UserRole.AICTE_ADMIN) {
+      if (!user.institutionId) {
+        throw new ForbiddenException('User is not associated with an institution');
+      }
+      if (enrolment.programme.institutionId !== user.institutionId) {
+        throw new ForbiddenException('Access denied to this enrolment');
+      }
+    }
+
+    return this.prisma.$transaction(async (tx) => {
+      await tx.case.updateMany({ where: { enrolmentId: id }, data: { enrolmentId: null } });
+      await tx.enrolment.updateMany({ where: { previousEnrolmentId: id }, data: { previousEnrolmentId: null } });
+      await tx.enrolment.delete({ where: { id } });
+
+      const remaining = await tx.enrolment.count({ where: { studentId: enrolment.studentId } });
+      const account = await tx.user.count({ where: { studentId: enrolment.studentId } });
+      let studentRemoved = false;
+      if (remaining === 0 && account === 0) {
+        await tx.student.delete({ where: { id: enrolment.studentId } });
+        studentRemoved = true;
+      }
+      return { removed: true, studentRemoved };
+    });
+  }
 }

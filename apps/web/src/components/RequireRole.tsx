@@ -1,4 +1,4 @@
-import { Navigate, Outlet, useNavigate } from 'react-router-dom';
+import { NavLink, Navigate, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth';
 import { roleHome, roleLabel, type Role } from '../types';
 
@@ -29,6 +29,27 @@ export default function RequireRole({ roles }: { roles: Role[] }) {
             </div>
           </div>
           <div className="flex items-center gap-3">
+            {(user.role === 'AICTE_ADMIN' ||
+              user.role === 'INSTITUTION_ADMIN' ||
+              user.role === 'INSTITUTION_OPERATOR') && (
+              <nav className="flex gap-1 text-sm">
+                {[
+                  { to: roleHome[user.role], label: 'Overview' },
+                  ...(user.role === 'AICTE_ADMIN' ? [] : [{ to: '/records', label: 'Records' }]),
+                  { to: '/cases', label: 'Cases' },
+                ].map((l) => (
+                  <NavLink
+                    key={l.to}
+                    to={l.to}
+                    className={({ isActive }) =>
+                      `rounded-lg px-3 py-1.5 ${isActive ? 'bg-slate-900 text-white' : 'text-slate-700 hover:bg-slate-100'}`
+                    }
+                  >
+                    {l.label}
+                  </NavLink>
+                ))}
+              </nav>
+            )}
             <span className="hidden text-sm text-slate-600 sm:inline">{user.fullName}</span>
             <button
               onClick={handleLogout}

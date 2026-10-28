@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateProgrammeDto } from './dto/create-programme.dto';
 import { UpdateProgrammeDto } from './dto/update-programme.dto';
@@ -103,19 +103,30 @@ export class ProgrammesService {
       if (programme.institutionId !== user.institutionId) {
         throw new ForbiddenException('Access denied to this programme');
       }
+      // Intake is set by AICTE. Institutions can edit everything else.
+      if (updateDto.approvedIntake !== undefined || updateDto.lateralIntake !== undefined) {
+        throw new ForbiddenException('Only AICTE can change a programme\'s intake');
+      }
     }
 
-    return this.prisma.programme.update({
-      where: { id },
-      data: {
-        name: updateDto.name,
-        academicYear: updateDto.academicYear,
-        shift: updateDto.shift,
-        approvedIntake: updateDto.approvedIntake,
-        lateralIntake: updateDto.lateralIntake,
-      },
-      include: { institution: true },
-    });
+    try {
+      return await this.prisma.programme.update({
+        where: { id },
+        data: {
+          name: updateDto.name,
+          academicYear: updateDto.academicYear,
+          shift: updateDto.shift,
+          approvedIntake: updateDto.approvedIntake,
+          lateralIntake: updateDto.lateralIntake,
+        },
+        include: { institution: true },
+      });
+    } catch (e: any) {
+      if (e?.code === 'P2002') {
+        throw new ConflictException('A programme with this name, year and shift already exists');
+      }
+      throw e;
+    }
   }
 
   async remove(id: string, user: any) {

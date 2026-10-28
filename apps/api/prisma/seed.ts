@@ -119,7 +119,17 @@ async function main() {
   // Situation 4: possible duplicate. Active at A with no end date, and B reports the same student.
   const dev = await student("100000000005", "Dev Test", "2006-03-03");
   await enrol(dev.id, aCse2026.id, "ACTIVE", "2026-08-01");
-  await enrol(dev.id, bCse2026.id, "PENDING_REVIEW", "2026-08-10");
+  const devPending = await enrol(dev.id, bCse2026.id, "PENDING_REVIEW", "2026-08-10");
+  await prisma.case.create({
+    data: {
+      type: "OVERLAP",
+      studentId: dev.id,
+      enrolmentId: devPending.id,
+      institutionId: instB.id,
+      description:
+        "Dev Test is already ACTIVE at Test Institute of Technology with no end date, and Demo College reports the same student from 10 Aug 2026.",
+    },
+  });
 
   console.log("Seed complete");
 }

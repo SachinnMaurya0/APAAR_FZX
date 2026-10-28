@@ -26,7 +26,7 @@ export class ProgrammesController {
   }
 
   @Post()
-  @Roles(UserRole.AICTE_ADMIN, UserRole.INSTITUTION_ADMIN)
+  @Roles(UserRole.AICTE_ADMIN)
   create(@Body() createProgrammeDto: CreateProgrammeDto, @CurrentUser() user: any) {
     return this.programmesService.create(createProgrammeDto, user);
   }
@@ -38,7 +38,7 @@ export class ProgrammesController {
   }
 
   @Delete(':id')
-  @Roles(UserRole.AICTE_ADMIN, UserRole.INSTITUTION_ADMIN)
+  @Roles(UserRole.AICTE_ADMIN)
   remove(@Param('id') id: string, @CurrentUser() user: any) {
     return this.programmesService.remove(id, user);
   }

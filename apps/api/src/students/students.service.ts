@@ -1,4 +1,4 @@
-import { ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateStudentDto } from './dto/create-student.dto';
 import { UpdateStudentDto } from './dto/update-student.dto';
@@ -122,6 +122,18 @@ export class StudentsService {
       if (!hasEnrolment) {
         throw new ForbiddenException('Access denied to this student');
       }
+    }
+
+    if (
+      user.role !== UserRole.AICTE_ADMIN &&
+      student.apaarId &&
+      updateDto.apaarId !== undefined &&
+      updateDto.apaarId !== student.apaarId
+    ) {
+      throw new ForbiddenException('Only AICTE can change an existing APAAR ID');
+    }
+    if (updateDto.apaarId && !/^\d{12}$/.test(updateDto.apaarId)) {
+      throw new BadRequestException('APAAR ID must be 12 digits');
     }
 
     if (updateDto.apaarId) {
