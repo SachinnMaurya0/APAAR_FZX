@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { api } from '../api';
 import { useAuth } from '../auth';
 import type { StudentRecord } from '../types';
+import VerifierPortal from './VerifierPortal';
 
 const fmt = (d: string | null) =>
   d ? new Date(d).toLocaleDateString('en-IN', { timeZone: 'UTC' }) : 'Ongoing';
@@ -17,16 +18,8 @@ export default function Portal() {
     retry: false,
   });
 
-  if (!isStudent) {
-    return (
-      <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h1 className="text-xl font-semibold">Verifier portal</h1>
-        <p className="mt-2 text-sm text-slate-600">
-          Record verification is not available yet.
-        </p>
-      </div>
-    );
-  }
+  if (user?.role === 'VERIFIER') return <VerifierPortal />;
+  if (!isStudent) return null;
   if (isLoading) return <p className="text-slate-500">Loading…</p>;
   if (isError || !data) {
     return <p className="text-red-600">We could not find a student record linked to this account.</p>;

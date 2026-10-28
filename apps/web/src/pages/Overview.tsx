@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { api } from '../api';
 import { useAuth } from '../auth';
 import type { ProgrammeOverview } from '../types';
+import AicteCharts from '../components/charts/AicteCharts';
 
 function Card({ label, value, danger = false }: { label: string; value: number; danger?: boolean }) {
   return (
@@ -73,6 +74,12 @@ export default function Overview({ scope }: { scope: 'aicte' | 'institution' }) 
         <Card label="Pending review" value={pending} />
         <Card label="Over-intake programmes" value={over} danger />
       </div>
+
+      {isAicte && (
+        <div className="mt-6">
+          <AicteCharts />
+        </div>
+      )}
 
       <div className="mt-6 overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
         <table className="w-full text-left text-sm">

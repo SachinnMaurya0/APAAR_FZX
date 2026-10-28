@@ -12,9 +12,10 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { MeModule } from './me/me.module';
 import { RecordsModule } from './records/records.module';
+import { VerifierModule } from './verifier/verifier.module';
 
 @Module({
-  imports: [PrismaModule, InstitutionsModule, UsersModule, AuthModule, ProgrammesModule, StudentsModule, EnrolmentsModule, CasesModule, DashboardsModule, MeModule, RecordsModule],
+  imports: [PrismaModule, InstitutionsModule, UsersModule, AuthModule, ProgrammesModule, StudentsModule, EnrolmentsModule, CasesModule, DashboardsModule, MeModule, RecordsModule,VerifierModule],
   controllers: [AppController],
   providers: [AppService],
 })
