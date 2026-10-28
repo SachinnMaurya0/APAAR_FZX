@@ -3,6 +3,7 @@ import { useAuth } from '../auth';
 import { roleHome } from '../types';
 import AfterHero from '../components/landing/AfterHero';
 import AnimatedText from '../components/AnimatedText';
+import StatsBand from '../components/StatsBand';
 
 // ---- Timeline demo: dates are the same ones the seed data uses --------------------------
 const AXIS_START = Date.UTC(2025, 7, 1); // 1 Aug 2025
@@ -147,18 +148,15 @@ export default function Landing() {
         <section className="mx-auto grid max-w-6xl gap-10 px-4 pt-10 pb-16 sm:px-6 lg:grid-cols-[1.05fr_1fr] lg:items-center lg:pt-16 lg:pb-24">
           <div>
             <h1 className="font-display text-4xl font-semibold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl">
-              <AnimatedText text="One student. One college at a time." />
+              <AnimatedText text="One ID. Every academic record, verified." />
             </h1>
             <p className="mt-6 max-w-[52ch] text-lg leading-relaxed text-slate-700">
-              Institutions report enrolment against each student’s APAAR ID. The platform keeps
-              the record straight: no double enrolment, no seats over approved intake, and a clear
-              view for AICTE.
+              ANVAY is one place for APAAR-based authentication and verification. Institutions
+              report enrolment against each student’s APAAR ID, and the platform keeps every
+              record consistent, with a clear view for AICTE and a private view for each student.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-4">
               {cta}
-              <a href="#status" className="text-sm font-medium underline underline-offset-4">
-                What works today
-              </a>
             </div>
             <p className="mt-6 text-sm text-slate-500">
               Prototype for Smart India Hackathon 2026, problem statement 26263. All data shown is
@@ -169,6 +167,8 @@ export default function Landing() {
         </section>
 
         <AfterHero />
+
+        <StatsBand />
 
         {/* roles */}
         <section className="border-t border-slate-300 bg-white">
