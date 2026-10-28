@@ -7,7 +7,7 @@ export default function RequireRole({ roles }: { roles: Role[] }) {
   const navigate = useNavigate();
 
   if (loading) {
-    return <div className="grid min-h-screen place-items-center text-slate-500">Loading…</div>;
+    return <div className="grid min-h-[50vh] place-items-center text-slate-500">Loading…</div>;
   }
   if (!user) return <Navigate to="/login" replace />;
   if (!roles.includes(user.role)) return <Navigate to={roleHome[user.role]} replace />;
@@ -17,22 +17,23 @@ export default function RequireRole({ roles }: { roles: Role[] }) {
     navigate('/login', { replace: true });
   }
 
+  const showNav =
+    user.role === 'AICTE_ADMIN' ||
+    user.role === 'INSTITUTION_ADMIN' ||
+    user.role === 'INSTITUTION_OPERATOR';
+
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900">
-      <header className="border-b border-slate-200 bg-white">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-          <div>
-            <div className="font-semibold">APAAR Student Verification</div>
-            <div className="text-xs text-slate-500">
-              {roleLabel[user.role]}
-              {user.institution ? ` · ${user.institution.name}` : ''}
-            </div>
+    <div className="bg-slate-50 text-slate-900">
+      {/* Role bar: sits under the global site header (which is h-14) */}
+      <div className="sticky top-14 z-40 border-b border-slate-200 bg-white">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-4 py-2">
+          <div className="text-xs text-slate-500">
+            {roleLabel[user.role]}
+            {user.institution ? ` · ${user.institution.name}` : ''}
           </div>
           <div className="flex items-center gap-3">
-            {(user.role === 'AICTE_ADMIN' ||
-              user.role === 'INSTITUTION_ADMIN' ||
-              user.role === 'INSTITUTION_OPERATOR') && (
-              <nav className="flex gap-1 text-sm">
+            {showNav && (
+              <nav aria-label="Dashboard" className="flex gap-1 text-sm">
                 {[
                   { to: roleHome[user.role], label: 'Overview' },
                   ...(user.role === 'AICTE_ADMIN' ? [] : [{ to: '/records', label: 'Records' }]),
@@ -59,10 +60,10 @@ export default function RequireRole({ roles }: { roles: Role[] }) {
             </button>
           </div>
         </div>
-      </header>
-      <main className="mx-auto max-w-6xl px-4 py-6">
+      </div>
+      <div className="mx-auto max-w-6xl px-4 py-6">
         <Outlet />
-      </main>
+      </div>
     </div>
   );
 }

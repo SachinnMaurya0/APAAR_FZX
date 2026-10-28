@@ -3,6 +3,7 @@ import { Navigate, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../auth';
 import { roleHome } from '../types';
+import DemoLogins from '../components/DemoLogins';
 
 export default function Login() {
   const { user, loading, login } = useAuth();
@@ -35,7 +36,7 @@ export default function Login() {
   }
 
   return (
-    <div className="grid min-h-screen place-items-center bg-slate-50 px-4">
+    <div className="flex min-h-[70vh] flex-col items-center justify-center gap-6 bg-slate-50 px-4 py-10 md:flex-row md:items-start">
       <form
         onSubmit={onSubmit}
         className="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
@@ -83,6 +84,9 @@ export default function Login() {
           {busy ? 'Signing in…' : 'Sign in'}
         </button>
       </form>
+
+      {/* DEMO ONLY: remove before any real deployment */}
+      <DemoLogins onUse={(e, p) => { setEmail(e); setPassword(p); setError(''); }} />
     </div>
   );
 }

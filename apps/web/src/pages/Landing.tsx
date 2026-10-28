@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../auth';
 import { roleHome } from '../types';
+import AfterHero from '../components/landing/AfterHero';
+import AnimatedText from '../components/AnimatedText';
 
 // ---- Timeline demo: dates are the same ones the seed data uses --------------------------
 const AXIS_START = Date.UTC(2025, 7, 1); // 1 Aug 2025
@@ -139,25 +141,13 @@ export default function Landing() {
 
   return (
     <div className="min-h-screen bg-slate-100 font-body text-slate-900">
-      <header className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
-        <span className="font-display text-base font-semibold">APAAR Student Verification</span>
-        {!loading && user ? (
-          <Link to={roleHome[user.role]} className="text-sm font-medium underline-offset-4 hover:underline">
-            Dashboard
-          </Link>
-        ) : (
-          <Link to="/login" className="text-sm font-medium underline-offset-4 hover:underline">
-            Sign in
-          </Link>
-        )}
-      </header>
 
       <main>
         {/* hero */}
         <section className="mx-auto grid max-w-6xl gap-10 px-4 pt-10 pb-16 sm:px-6 lg:grid-cols-[1.05fr_1fr] lg:items-center lg:pt-16 lg:pb-24">
           <div>
             <h1 className="font-display text-4xl font-semibold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl">
-              One student. One college at a time.
+              <AnimatedText text="One student. One college at a time." />
             </h1>
             <p className="mt-6 max-w-[52ch] text-lg leading-relaxed text-slate-700">
               Institutions report enrolment against each student’s APAAR ID. The platform keeps
@@ -177,6 +167,8 @@ export default function Landing() {
           </div>
           <Timeline />
         </section>
+
+        <AfterHero />
 
         {/* roles */}
         <section className="border-t border-slate-300 bg-white">
